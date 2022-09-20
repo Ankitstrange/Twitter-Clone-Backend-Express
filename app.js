@@ -1,9 +1,11 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const helmet = require('helmet')
-
+const helmet = require('helmet');
+const { default: mongoose } = require('mongoose');
 const app = express();
 const port = process.env.PORT||8080;
+const mongoUrl = 'mongodb://localhost:27017/Twitter';
+mongoose.connect(mongoUrl).then(()=>{console.log("DB Connection Succesfull");});
 
 // view engine setup
 app.use(express.json());
