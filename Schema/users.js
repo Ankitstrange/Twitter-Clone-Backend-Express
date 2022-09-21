@@ -2,6 +2,12 @@ const { default: mongoose } = require("mongoose");
 
 const UsersSchema = new mongoose.Schema(
     {
+        userId:{
+            type:Number,
+            required:[true,'Field is required'],
+            unique:true,
+            min:[1,"UserId can't be less than 1"],
+        },
         name:{
             type:String,
             required:[true,'Field is required'],

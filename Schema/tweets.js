@@ -2,6 +2,12 @@ const { default: mongoose } = require("mongoose");
 
 const TweetsSchema = new mongoose.Schema(
     {
+        tweetId:{
+            type:Number,
+            required:[true,'Field is required'],
+            unique:true,
+            min:[1,"TweetId can't be less than 1"],
+        },
         text:{
             type:String,
             required:[true,'Field is required'],
@@ -12,27 +18,21 @@ const TweetsSchema = new mongoose.Schema(
         },
         repliedTweetId:{
             type:Number,
-            required:[true,'Field is required'],
         },
         repliedUserId:{
             type:Number,
-            required:[true,'Field is required'],
         },
         replyCount:{
             type:Number,
-            required:[true,'Field is required'],
         },
         retweetCount:{
             type:Number,
-            required:[true,'Field is required'],
         },
         favoriteCount:{
             type:Number,
-            required:[true,'Field is required'],
         },
         retweetStatus:{
             type:Number,
-            required:[true,'Field is required'],
             min:[1,'Invalid Tweet Id'],
         },
         userId:{
