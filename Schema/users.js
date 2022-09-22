@@ -22,31 +22,24 @@ const UsersSchema = new mongoose.Schema(
         },
         description:{
             type:String,
-            required:[true,'Field is required'],
         },
         protected:{
             type:Boolean,
-            required:[true,'Field is required'],
         },
         verified:{
             type:Boolean,
-            required:[true,'Field is required'],
         },
         followingCount:{
             type:Number,
-            required:[true,'Field is required'],
         },
         followersCount:{
             type:Number,
-            required:[true,'Field is required'],
         },
         tweetsCount:{
             type:Number,
-            required:[true,'Field is required'],
         },
         likesCount:{
             type:Number,
-            required:[true,'Field is required'],
         },
         email:{
             type:String,
