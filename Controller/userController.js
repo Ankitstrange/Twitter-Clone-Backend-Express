@@ -36,6 +36,19 @@ exports.addUser = async(req,res,next)=>{
         body.name = String(req.body.name).trim();
         body.description = req.body.description?String(req.body.description).trim():undefined;
         body.protected = req.body.protected?req.body.protected:undefined;
+        body.verified = req.body.verified?req.body.verified:undefined;
+        body.followingCount = req.body.followingCount?req.body.followingCount:undefined;
+        body.followersCount = req.body.followersCount?req.body.followersCount:undefined;
+        body.tweetsCount = req.body.tweetsCount?req.body.tweetsCount:undefined;
+        body.likesCount = req.body.likesCount?req.body.likesCount:undefined;
+        const user = await Users.create(body);
+        if(!user){
+            res.status(500).json({
+                message:"User creation failed"
+            });
+        } else {
+            res.status(200).json(user);
+        }
     }catch(exception){
         next(exception);
     }
