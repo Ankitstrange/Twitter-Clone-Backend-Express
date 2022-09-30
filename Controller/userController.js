@@ -19,9 +19,21 @@ exports.getAllUsers = async(req,res,next)=>{
 
 exports.addUser = async(req,res,next)=>{
     try{
-        nameValidator(req.body.name);
-        screenNameValidator(req.body.screenName);
-        emailValidator(req.body.email);
+        if(!nameValidator(req.body.name)){
+            return res.status(404).json({
+                message:"Name is Invalid"
+            });
+        }
+        if(!screenNameValidator(req.body.screenName)){
+            return res.status(404).json({
+                message:"Screen Name is Invalid"
+            });
+        }
+        if(!emailValidator(req.body.email)){
+            return res.status(404).json({
+                message:"Email is Invalid"
+            });
+        }
         const userByScreenName = await Users.find({screenName:req.body.screenName});
         if(userByScreenName.length>0){
             return res.status(404).json({
