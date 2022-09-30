@@ -1,5 +1,6 @@
 const { Users } = require("../Schema/users");
 const { userIdGenerator } = require("../Util/util");
+const { nameValidator, screenNameValidator, emailValidator } = require("../Util/validators");
 
 exports.getAllUsers = async(req,res,next)=>{
     try{
@@ -18,6 +19,9 @@ exports.getAllUsers = async(req,res,next)=>{
 
 exports.addUser = async(req,res,next)=>{
     try{
+        nameValidator(req.body.name);
+        screenNameValidator(req.body.screenName);
+        emailValidator(req.body.email);
         const userByScreenName = await Users.find({screenName:req.body.screenName});
         if(userByScreenName.length>0){
             return res.status(404).json({
@@ -33,7 +37,7 @@ exports.addUser = async(req,res,next)=>{
         const body = {};
         body.userId = await userIdGenerator();
         body.screenName=String(req.body.screenName).trim();
-        body.name = String(req.body.name).trim();
+        body.name = String(req.body.name).trim().toUpperCase();
         body.description = req.body.description?String(req.body.description).trim():undefined;
         body.protected = req.body.protected?req.body.protected:undefined;
         body.verified = req.body.verified?req.body.verified:undefined;
