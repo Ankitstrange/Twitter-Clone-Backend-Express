@@ -40,6 +40,9 @@ const TweetsSchema = new mongoose.Schema(
             required:[true,'Field is required'],
             min:[1,'Invalid User Id'],
         },
+        likes:{
+            type:[{userId:{type:Number}}],
+        }
     },
     {
         timestamps:{

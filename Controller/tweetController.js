@@ -7,14 +7,14 @@ exports.createTweet = async(req, res, next)=>{
         const body={};
         body.text=String(req.body.text).trim();
         body.source=String(req.body.source).trim();
-        // const user = await Users.find({userId:req.body.userId});
-        // if(!user){
-        //     return res.status(404).json({
-        //         message:"User does not exists"
-        //     });
-        // }
-        // body.userId=user.userId;
-        body.userId=req.body.userId;
+        const user = await Users.find({userId:req.body.userId});
+        console.log("USer",user);
+        if(user.length!=1){
+            return res.status(404).json({
+                message:"User does not exists"
+            });
+        }
+        body.userId=user[0].userId;
         const tweetId = await tweetIdGenerator();
         body.tweetId=parseInt(tweetId);
         const tweet = await Tweets.create(body);
@@ -69,6 +69,40 @@ exports.deleteTweet = async(req,res,next)=>{
             });
         } else {
             res.status(200).json({});
+        }
+    } catch (exception){
+        next(exception);
+    }
+}
+
+exports.likeTweet = async(req,res,next)=>{
+    try{
+        const tweet = await Tweets.find({tweetId:req.params.tweetId});
+        const user = await Users.find({userId:req.params.userId});
+        const alreadyLiked = await Tweets.find({tweetId:req.params.tweetId, "likes.userId":req.params.userId});
+        if(tweet.length==0){
+            return res.status(404).json({
+                message:"Tweet not found"
+            });
+        }
+        if(user.length==0){
+            return res.status(404).json({
+                message:"User not found"
+            });
+        }
+        if(alreadyLiked.length>0){
+            return res.status(404).json({
+                message:"Tweet already Liked by the User"
+            });
+        }
+        const updateBody = {userId:user[0].userId};
+        const updatedTweet = await Tweets.updateOne({tweetId:req.params.tweetId},{$addToSet:{likes:updateBody}});
+        if(updatedTweet?.modifiedCount===0){
+            res.status(404).json({
+                message:"Like tweet failed"
+            });
+        } else {
+            res.status(200).json({message:"Tweet has been liked successfully"});
         }
     } catch (exception){
         next(exception);
