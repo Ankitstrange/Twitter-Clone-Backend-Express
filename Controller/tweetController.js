@@ -108,3 +108,36 @@ exports.likeTweet = async(req,res,next)=>{
         next(exception);
     }
 }
+
+exports.dislikeTweet = async(req, res, next)=>{
+    try{
+        const tweet = await Tweets.find({tweetId:req.params.tweetId});
+        const user = await Users.find({userId:req.params.userId});
+        const ilkeExist = await Tweets.find({tweetId:req.params.tweetId, "likes.userId":req.params.userId});
+        if(tweet.length==0){
+            return res.status(404).json({
+                message:"Tweet not found"
+            });
+        }
+        if(user.length==0){
+            return res.status(404).json({
+                message:"User not found"
+            });
+        }
+        if(ilkeExist.length==0){
+            return res.status(404).json({
+                message:"Like does not exist"
+            });
+        }
+        const updatedTweet = await Tweets.updateOne({tweetId:req.params.tweetId},{$pull:{likes:{userId:user[0].userId}}});
+        if(updatedTweet?.modifiedCount===0){
+            res.status(404).json({
+                message:"Dislike tweet failed"
+            });
+        } else {
+            res.status(200).json({message:"Tweet has been disliked successfully"});
+        }
+    } catch (exception){
+        next(exception);
+    }
+}
