@@ -47,6 +47,12 @@ const UsersSchema = new mongoose.Schema(
             min:[5,"Email should contain min 5 characters"],
             max:[50,"Email should contain max 50 characters"],
         },
+        following:{
+            type:[{userId:{type:Number}}],
+        },
+        followers:{
+            type:[{userId:{type:Number}}],
+        }
     },
     {
         timestamps:{
