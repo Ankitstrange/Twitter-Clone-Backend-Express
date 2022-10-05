@@ -152,3 +152,36 @@ exports.followUser = async(req, res, next)=>{
         next(exception);
     }
 }
+
+exports.unfollowUser = async(req, res, next)=>{
+    try{
+        const user = await Users.find({userId:req.params.followerId});
+        const userToFollow = await Users.find({userId:req.params.followingId});
+        const isUserFollowed = await Users.find({userId:req.params.followerId, following:{$elemMatch:{userId:req.params.followingId}}});
+        if(!user||user.length===0){
+            return res.status(404).json({
+                message:"User does not exist"
+            });
+        } else if(!userToFollow||userToFollow.length===0){
+            return res.status(404).json({
+                message:"User to follow does not exist"
+            });
+        } else if(isUserFollowed.length===0){
+            return res.status(404).json({
+                message:"User not followed"
+            });
+        } else {
+            const updatedUser = await Users.updateOne({userId:user[0].userId},{$pull:{following:{userId:userToFollow[0].userId}}});
+            const updatedToFollowUser = await Users.updateOne({userId:userToFollow[0].userId},{$pull:{followers:{userId:user[0].userId}}});
+            if(updatedUser?.modifiedCount===0 && updatedToFollowUser?.modifiedCount===0){
+                res.status(404).json({
+                    message:"Unfollow User failed"
+                });
+            } else {
+                res.status(200).json({message:"User has been unfollowed successfully"});
+            }
+        }
+    } catch (exception) {
+        next(exception);
+    }
+}
