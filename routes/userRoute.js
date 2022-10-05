@@ -5,7 +5,7 @@ const userRoute = express.Router();
 userRoute.get("",userController.getAllUsers);
 userRoute.post("/register",userController.addUser);
 userRoute.get("/:id",userController.getUser);
-// userRoute.get("/likes/:id", userController.getLikedTweets);
+userRoute.get("/likes/:id", userController.getLikedTweets);
 // userRoute.get("/follow/:followingId/:followerId",userController.followUser);
 // userRoute.get("/unfollow/:followingId/:followerId",userController.unfollowUser);
 // userRoute.get("/followings/:id",userController.getFollowings);

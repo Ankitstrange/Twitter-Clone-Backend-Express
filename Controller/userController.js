@@ -1,3 +1,4 @@
+const { Tweets } = require("../Schema/tweets");
 const { Users } = require("../Schema/users");
 const { userIdGenerator } = require("../Util/util");
 const { nameValidator, screenNameValidator, emailValidator } = require("../Util/validators");
@@ -99,6 +100,22 @@ exports.deleteUser = async(req, res, next)=>{
             });
         }
     } catch (exception) {
+        next(exception);
+    }
+}
+
+exports.getLikedTweets = async(req, res, next)=>{
+    try{
+        const tweets = await Tweets.find({userId:req.params.id});
+        const filterTweets = tweets.filter(tweet=>{return tweet.likes.length>0});
+        if(filterTweets.length==0){
+            res.status(404).json({
+                message:"No tweet found with given user Id"
+            });
+        } else {
+            res.status(200).json(filterTweets);
+        }
+    } catch (exception){
         next(exception);
     }
 }
