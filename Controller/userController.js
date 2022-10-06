@@ -185,3 +185,45 @@ exports.unfollowUser = async(req, res, next)=>{
         next(exception);
     }
 }
+
+exports.getFollowings = async(req, res, next)=>{
+    try{
+        const checkValidUser = await Users.find({userId:req.params.id});
+        if(checkValidUser.length===0){
+            return res.status(404).json({
+                message:"Invaild User"
+            });
+        }
+        const followings = await Users.find({"followers.userId":req.params.id});
+        if(followings!==null&&followings!==undefined){
+            res.status(200).json(followings);
+        } else {
+            res.status(404).json({
+                message:"Get Followings failed"
+            });
+        }
+    } catch (exception){
+        next(exception);
+    }
+}
+
+exports.getFollowers = async(req, res, next)=>{
+    try{
+        const checkValidUser = await Users.find({userId:req.params.id});
+        if(checkValidUser.length===0){
+            return res.status(404).json({
+                message:"Invaild User"
+            });
+        }
+        const followers = await Users.find({"following.userId":req.params.id});
+        if(followers!==null&&followers!=undefined){
+            res.status(200).json(followers);
+        } else {
+            res.status(404).json({
+                message:"Get Followers failed"
+            });
+        }
+    } catch (exception){
+        next(exception);
+    }
+}
