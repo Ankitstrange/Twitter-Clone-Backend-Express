@@ -63,12 +63,14 @@ exports.getAllTweets = async(req,res,next)=>{
 exports.deleteTweet = async(req,res,next)=>{
     try{
         const tweet = await Tweets.deleteOne({tweetId:req.params.tweetId});
-        if(!tweet||tweet.length<=0){
+        if(tweet?.deletedCount===0){
             res.status(404).json({
                 message:"No Tweet found"
             });
         } else {
-            res.status(200).json({});
+            res.status(200).json({
+                message:`Tweet deleted succesfully with id: ${req.params.tweetId}`
+            });
         }
     } catch (exception){
         next(exception);
@@ -136,6 +138,55 @@ exports.dislikeTweet = async(req, res, next)=>{
             });
         } else {
             res.status(200).json({message:"Tweet has been disliked successfully"});
+        }
+    } catch (exception){
+        next(exception);
+    }
+}
+
+exports.retweet = async(req, res, next)=>{
+    try{
+        const tweet = await Tweets.find({tweetId:req.params.tweetId});
+        const user = await Users.find({userId:req.params.userId});
+        const newTweet = {};
+        if(tweet.length===0){
+            return res.status(404).json({
+                message:`No Tweet found with tweet id: ${req.params.tweetId}`
+            });
+        }
+        if(user.length===0){
+            return res.status(404).json({
+                message:`No User found with user id: ${req.params.userId}`
+            });
+        }
+        if(tweet[0]?.retweetStatus){
+            const originalTweet = await Tweets.find({tweetId:tweet[0].retweetStatus});
+            if(originalTweet.length===0){
+                return res.status(404).json({
+                    message:`No Original Tweet found with retweet id:${tweet[0].retweetStatus}`
+                });
+            }
+            newTweet.userId = user[0].userId;
+            newTweet.text = originalTweet[0].text;
+            newTweet.source = originalTweet[0].source;
+            newTweet.retweetStatus = originalTweet[0].tweetId;
+            newTweet.likes = originalTweet[0].likes?originalTweet[0].likes:[];
+        } else {
+            newTweet.userId = user[0].userId;
+            newTweet.text = tweet[0].text;
+            newTweet.source = tweet[0].source;
+            newTweet.retweetStatus = tweet[0].tweetId;
+            newTweet.likes = tweet[0].likes?tweet[0].likes:[];
+        }
+        const tweetId = await tweetIdGenerator();
+        newTweet.tweetId=parseInt(tweetId);
+        const reTweet = await Tweets.create(newTweet);
+        if(!reTweet){
+            res.status(500).json({
+                message:"DB Error"
+            });
+        } else {
+            res.status(200).json(reTweet);
         }
     } catch (exception){
         next(exception);
