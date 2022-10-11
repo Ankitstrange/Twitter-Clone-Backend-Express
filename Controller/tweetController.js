@@ -192,3 +192,31 @@ exports.retweet = async(req, res, next)=>{
         next(exception);
     }
 }
+
+exports.getLikeUsers = async(req, res, next)=>{
+    try{
+        const tweets = await Tweets.find({tweetId:req.params.tweetId});
+        if(tweets.length===0){
+            return res.status(404).json({
+                message:`No Tweet found with tweet Id: ${req.params.tweetId}`
+            });
+        }
+        if(!tweets[0].likes || tweets[0].likes.length===0){
+            return res.status(404).json({
+                message:`No likes found for tweet Id: ${req.params.tweetId}`
+            })
+        }
+        const userIds = [];
+        tweets[0].likes.forEach((like)=>{userIds.push(like.userId?like.userId:null)});
+        const likedUser = await Users.find({userId:{$in:userIds}});
+        if(likedUser.length===0){
+            res.status(404).json({
+                message:`No liked users found for tweet Id: ${req.params.tweetId}`
+            });
+        } else {
+            res.status(200).json(likedUser);
+        }
+    } catch (exception){
+        next(exception);
+    }
+}
