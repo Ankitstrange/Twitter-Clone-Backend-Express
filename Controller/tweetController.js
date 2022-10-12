@@ -220,3 +220,26 @@ exports.getLikeUsers = async(req, res, next)=>{
         next(exception);
     }
 }
+
+exports.getRetweetUsers = async(req, res, next)=>{
+    try{
+        const tweets = await Tweets.find({tweetId:req.params.tweetId});
+        if(tweets.length===0){
+            return res.status(404).json({
+                message:`No tweet found with tweet Id: ${req.params.tweetId}`
+            });
+        }
+        const retweetUser = await Tweets.find({retweetStatus:req.params.tweetId},{_id:0,userId:1});
+        const retweetUserIds = retweetUser.map((tweet)=>{return tweet.userId});
+        const users = await Users.find({userId:{$in:retweetUserIds}});
+        if(users.length===0){
+            res.status(404).json({
+                message:`No retweet users found with tweet Id: ${req.params.tweetId}`
+            });
+        } else {
+            res.status(200).json(users);
+        }
+    } catch (exception){
+        next(exception);
+    }
+}

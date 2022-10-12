@@ -11,7 +11,7 @@ tweetRoute.get("/dislike/:tweetId/:userId",tweeterController.dislikeTweet);
 tweetRoute.get("/retweet/:tweetId/:userId",tweeterController.retweet);
 tweetRoute.delete("/undoretweet/:tweetId",tweeterController.deleteTweet);
 tweetRoute.get("/likes/:tweetId",tweeterController.getLikeUsers);
-// tweetRoute.get("/retweets/:tweetId",tweeterController.getRetweetUsers);
+tweetRoute.get("/retweets/:tweetId",tweeterController.getRetweetUsers);
 // tweetRoute.post("/reply/:tweetId",tweeterController.replyTweet);
 tweetRoute.all("*",async(req, res)=>{
     console.log("Invalid path");
