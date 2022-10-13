@@ -243,3 +243,38 @@ exports.getRetweetUsers = async(req, res, next)=>{
         next(exception);
     }
 }
+
+exports.replyTweet = async(req, res, next)=>{
+    try{
+        const tweet = await Tweets.find({tweetId:req.params.tweetId});
+        const user = await Users.find({userId:req.body.userId});
+        if(tweet.length===0){
+            return res.status(404).json({
+                message:`No tweet found with tweet Id: ${req.params.tweetId}`
+            });
+        }
+        if(user.length===0){
+            return res.status(404).json({
+                message:`No user found with user Id: ${req.body.userId}`
+            });
+        }
+        const body={};
+        body.text=String(req.body.text).trim();
+        body.source=String(req.body.source).trim();
+        body.userId=user[0].userId;
+        const tweetId = await tweetIdGenerator();
+        body.tweetId=parseInt(tweetId);
+        body.repliedTweetId = req.params.tweetId;
+        body.repliedUserId = user[0].userId;
+        const createdTweet = await Tweets.create(body);
+        if(!createdTweet){
+            res.status(500).json({
+                message:"DB Error"
+            });
+        } else {
+            res.status(200).json(createdTweet);
+        }
+    } catch (exception){
+        next(exception);
+    }
+}
