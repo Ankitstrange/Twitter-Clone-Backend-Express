@@ -1,6 +1,6 @@
 const { Tweets } = require("../Schema/tweets");
 const { Users } = require("../Schema/users");
-const { tweetIdGenerator } = require("../Util/util")
+const { tweetIdGenerator, errorResponse } = require("../Util/util")
 
 exports.createTweet = async(req, res, next)=>{
     try{
@@ -8,20 +8,15 @@ exports.createTweet = async(req, res, next)=>{
         body.text=String(req.body.text).trim();
         body.source=String(req.body.source).trim();
         const user = await Users.find({userId:req.body.userId});
-        console.log("USer",user);
         if(user.length!=1){
-            return res.status(404).json({
-                message:"User does not exists"
-            });
+            next(errorResponse("User does not exists", 404));  
         }
         body.userId=user[0].userId;
         const tweetId = await tweetIdGenerator();
         body.tweetId=parseInt(tweetId);
         const tweet = await Tweets.create(body);
         if(!tweet){
-            res.status(500).json({
-                message:"DB Error"
-            });
+            next(errorResponse("DB Error", 500));
         } else {
             res.status(200).json(tweet);
         }
@@ -34,9 +29,7 @@ exports.getTweet = async(req,res, next)=>{
     try{
         const tweet = await Tweets.find({tweetId:req.params.tweetId});
         if(!tweet){
-            res.status(404).json({
-                message:"Tweet not found"
-            });
+            next(errorResponse("Tweet not found", 404));
         } else {
             res.status(200).json(tweet);
         }
@@ -49,9 +42,7 @@ exports.getAllTweets = async(req,res,next)=>{
     try{
         const tweets = await Tweets.find({userId:req.params.userId});
         if(!tweets||tweets.length<=0){
-            res.status(404).json({
-                message:"No Tweet found"
-            });
+            next(errorResponse("No Tweet found", 404));
         } else {
             res.status(200).json(tweets);
         }
@@ -64,9 +55,7 @@ exports.deleteTweet = async(req,res,next)=>{
     try{
         const tweet = await Tweets.deleteOne({tweetId:req.params.tweetId});
         if(tweet?.deletedCount===0){
-            res.status(404).json({
-                message:"No Tweet found"
-            });
+            next(errorResponse("No Tweet found", 404));
         } else {
             res.status(200).json({
                 message:`Tweet deleted succesfully with id: ${req.params.tweetId}`
@@ -83,26 +72,18 @@ exports.likeTweet = async(req,res,next)=>{
         const user = await Users.find({userId:req.params.userId});
         const alreadyLiked = await Tweets.find({tweetId:req.params.tweetId, "likes.userId":req.params.userId});
         if(tweet.length==0){
-            return res.status(404).json({
-                message:"Tweet not found"
-            });
+            next(errorResponse("Tweet not found", 404));
         }
         if(user.length==0){
-            return res.status(404).json({
-                message:"User not found"
-            });
+            next(errorResponse("User not found", 404));
         }
         if(alreadyLiked.length>0){
-            return res.status(404).json({
-                message:"Tweet already Liked by the User"
-            });
+            next(errorResponse("Tweet already Liked by the User", 404));
         }
         const updateBody = {userId:user[0].userId};
         const updatedTweet = await Tweets.updateOne({tweetId:req.params.tweetId},{$addToSet:{likes:updateBody}});
         if(updatedTweet?.modifiedCount===0){
-            res.status(404).json({
-                message:"Like tweet failed"
-            });
+            next(errorResponse("Like tweet failed", 500));
         } else {
             res.status(200).json({message:"Tweet has been liked successfully"});
         }
@@ -117,25 +98,17 @@ exports.dislikeTweet = async(req, res, next)=>{
         const user = await Users.find({userId:req.params.userId});
         const ilkeExist = await Tweets.find({tweetId:req.params.tweetId, "likes.userId":req.params.userId});
         if(tweet.length==0){
-            return res.status(404).json({
-                message:"Tweet not found"
-            });
+            next(errorResponse("Tweet not found", 404));
         }
         if(user.length==0){
-            return res.status(404).json({
-                message:"User not found"
-            });
+            next(errorResponse("User not found", 404));
         }
         if(ilkeExist.length==0){
-            return res.status(404).json({
-                message:"Like does not exist"
-            });
+            next(errorResponse("Like does not exist", 404));
         }
         const updatedTweet = await Tweets.updateOne({tweetId:req.params.tweetId},{$pull:{likes:{userId:user[0].userId}}});
         if(updatedTweet?.modifiedCount===0){
-            res.status(404).json({
-                message:"Dislike tweet failed"
-            });
+            next(errorResponse("Dislike tweet failed", 500));
         } else {
             res.status(200).json({message:"Tweet has been disliked successfully"});
         }
@@ -150,21 +123,15 @@ exports.retweet = async(req, res, next)=>{
         const user = await Users.find({userId:req.params.userId});
         const newTweet = {};
         if(tweet.length===0){
-            return res.status(404).json({
-                message:`No Tweet found with tweet id: ${req.params.tweetId}`
-            });
+            next(errorResponse(`No Tweet found with tweet id: ${req.params.tweetId}`, 404));
         }
         if(user.length===0){
-            return res.status(404).json({
-                message:`No User found with user id: ${req.params.userId}`
-            });
+            next(errorResponse(`No User found with user id: ${req.params.userId}`, 404));
         }
         if(tweet[0]?.retweetStatus){
             const originalTweet = await Tweets.find({tweetId:tweet[0].retweetStatus});
             if(originalTweet.length===0){
-                return res.status(404).json({
-                    message:`No Original Tweet found with retweet id:${tweet[0].retweetStatus}`
-                });
+                next(errorResponse(`No Original Tweet found with retweet id:${tweet[0].retweetStatus}`, 404));
             }
             newTweet.userId = user[0].userId;
             newTweet.text = originalTweet[0].text;
@@ -182,9 +149,7 @@ exports.retweet = async(req, res, next)=>{
         newTweet.tweetId=parseInt(tweetId);
         const reTweet = await Tweets.create(newTweet);
         if(!reTweet){
-            res.status(500).json({
-                message:"DB Error"
-            });
+            next(errorResponse("DB Error", 500));
         } else {
             res.status(200).json(reTweet);
         }
@@ -197,22 +162,16 @@ exports.getLikeUsers = async(req, res, next)=>{
     try{
         const tweets = await Tweets.find({tweetId:req.params.tweetId});
         if(tweets.length===0){
-            return res.status(404).json({
-                message:`No Tweet found with tweet Id: ${req.params.tweetId}`
-            });
+            next(errorResponse(`No Tweet found with tweet id: ${req.params.tweetId}`, 404));
         }
         if(!tweets[0].likes || tweets[0].likes.length===0){
-            return res.status(404).json({
-                message:`No likes found for tweet Id: ${req.params.tweetId}`
-            })
+            next(errorResponse(`No likes found for tweet Id: ${req.params.tweetId}`, 404));
         }
         const userIds = [];
         tweets[0].likes.forEach((like)=>{userIds.push(like.userId?like.userId:null)});
         const likedUser = await Users.find({userId:{$in:userIds}});
         if(likedUser.length===0){
-            res.status(404).json({
-                message:`No liked users found for tweet Id: ${req.params.tweetId}`
-            });
+            next(errorResponse(`No liked users found for tweet Id: ${req.params.tweetId}`, 404));
         } else {
             res.status(200).json(likedUser);
         }
@@ -225,17 +184,13 @@ exports.getRetweetUsers = async(req, res, next)=>{
     try{
         const tweets = await Tweets.find({tweetId:req.params.tweetId});
         if(tweets.length===0){
-            return res.status(404).json({
-                message:`No tweet found with tweet Id: ${req.params.tweetId}`
-            });
+            next(errorResponse(`No Tweet found with tweet id: ${req.params.tweetId}`, 404));
         }
         const retweetUser = await Tweets.find({retweetStatus:req.params.tweetId},{_id:0,userId:1});
         const retweetUserIds = retweetUser.map((tweet)=>{return tweet.userId});
         const users = await Users.find({userId:{$in:retweetUserIds}});
         if(users.length===0){
-            res.status(404).json({
-                message:`No retweet users found with tweet Id: ${req.params.tweetId}`
-            });
+            next(errorResponse(`No retweet users found with tweet Id: ${req.params.tweetId}`, 404));
         } else {
             res.status(200).json(users);
         }
@@ -249,14 +204,10 @@ exports.replyTweet = async(req, res, next)=>{
         const tweet = await Tweets.find({tweetId:req.params.tweetId});
         const user = await Users.find({userId:req.body.userId});
         if(tweet.length===0){
-            return res.status(404).json({
-                message:`No tweet found with tweet Id: ${req.params.tweetId}`
-            });
+            next(errorResponse(`No Tweet found with tweet id: ${req.params.tweetId}`, 404));
         }
         if(user.length===0){
-            return res.status(404).json({
-                message:`No user found with user Id: ${req.body.userId}`
-            });
+            next(errorResponse(`No user found with user Id: ${req.body.userId}`, 404));
         }
         const body={};
         body.text=String(req.body.text).trim();
@@ -268,9 +219,7 @@ exports.replyTweet = async(req, res, next)=>{
         body.repliedUserId = user[0].userId;
         const createdTweet = await Tweets.create(body);
         if(!createdTweet){
-            res.status(500).json({
-                message:"DB Error"
-            });
+            next(errorResponse("DB Error", 500));
         } else {
             res.status(200).json(createdTweet);
         }

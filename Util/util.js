@@ -20,3 +20,9 @@ exports.userIdGenerator = async()=>{
         return lastCount[0].userId+1;
     }
 }
+
+exports.errorResponse = (errorMessage, status)=>{
+    let error = new Error(errorMessage);
+    error.status = status;
+    return error;
+}
