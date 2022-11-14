@@ -12,3 +12,5 @@ Mon Nov 14 2022 - POST - /users/loginUser - No user exists with ankit3@abc.abcd 
 Mon Nov 14 2022 - POST - /users/loginUser - Invalid credentials
 Mon Nov 14 2022 - POST - /users/loginUser - No user exists with Ankit124 username
 Mon Nov 14 2022 - POST - /users/loginUser - Invalid credentials
+Mon Nov 14 2022 - POST - /users/loginUser - No user exists with Akit username
+Mon Nov 14 2022 - POST - /users/loginUser - No user exists with Akit username
