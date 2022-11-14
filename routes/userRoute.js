@@ -11,6 +11,7 @@ userRoute.get("/unfollow/:followingId/:followerId",userController.unfollowUser);
 userRoute.get("/followings/:id",userController.getFollowings);
 userRoute.get("/followers/:id",userController.getFollowers);
 userRoute.delete("/delete/:id",userController.deleteUser);
+userRoute.post("/loginUser", userController.loginUser);
 userRoute.all("*",async(req, res)=>{
     console.log("Invalid path");
     res.status(404).json({

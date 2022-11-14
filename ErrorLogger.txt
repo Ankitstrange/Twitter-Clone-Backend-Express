@@ -7,3 +7,8 @@ Sat Oct 15 2022 - GET - /users/unfollow/4/30 - User does not exist
 Sat Oct 15 2022 - GET - /users/unfollow/40/3 - User to follow does not exist
 Sat Oct 15 2022 - GET - /users/unfollow/4/3 - User not followed
 Sat Oct 15 2022 - POST - /tweets/create - User does not exists
+Mon Nov 14 2022 - POST - /users/loginUser - Assignment to constant variable.
+Mon Nov 14 2022 - POST - /users/loginUser - No user exists with ankit3@abc.abcd username
+Mon Nov 14 2022 - POST - /users/loginUser - Invalid credentials
+Mon Nov 14 2022 - POST - /users/loginUser - No user exists with Ankit124 username
+Mon Nov 14 2022 - POST - /users/loginUser - Invalid credentials

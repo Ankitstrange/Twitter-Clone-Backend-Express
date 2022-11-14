@@ -15,7 +15,7 @@ exports.nameValidator = (name)=>{
 }
 
 exports.screenNameValidator = (screenName)=>{
-    const screenNameRegex = new RegExp(/^[A-Za-z0-9.,'_\-+=@!$%^&*]+$/);
+    const screenNameRegex = new RegExp(/^[A-Za-z0-9,'_\-+=@!$%^&*]+$/);
     if(screenName===null||screenName===undefined||!screenNameRegex.test(screenName)||screenName.length<4||screenName.length>50){
         return false;
     }

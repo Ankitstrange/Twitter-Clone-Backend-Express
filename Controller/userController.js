@@ -183,3 +183,32 @@ exports.getFollowers = async(req, res, next)=>{
         next(exception);
     }
 }
+
+exports.loginUser = async(req, res, next)=>{
+    try{
+        const loginInputObject = req.body;
+        const loginInput = loginInputObject.loginInput;
+        if(loginInput && String(loginInput).trim()!=""){
+            if(screenNameValidator(loginInput)){
+                const user = await Users.find({screenName:loginInput});
+                if(user.length!==0){
+                    res.status(200).json(user);
+                } else {
+                    next(errorResponse(`No user exists with ${loginInput} username`, 404));
+                }
+            } else if(emailValidator(loginInput)){
+                const user = await Users.find({email:loginInput});
+                if(user.length!==0){
+                    res.status(200).json(user);
+                } else {
+                    next(errorResponse(`No user exists with ${loginInput} email`, 404));
+                }
+            } else {
+                next(errorResponse("Invalid credentials", 404));
+            }
+        }
+
+    } catch (exception){
+        next(exception);
+    }
+}
